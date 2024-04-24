@@ -4,6 +4,7 @@ import { Text, Image, TextInput, View, StyleSheet, TouchableOpacity , Alert} fro
 import { StackTypes } from '../../routes/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { MaterialIcons } from '@expo/vector-icons'; 
 
 const Home = () => {
   const [login, setLogin] = useState<string>('');
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: 500, 
-    height: 660, 
+    height: 300, 
     marginBottom: 20, 
   },
 });

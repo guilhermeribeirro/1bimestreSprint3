@@ -1,25 +1,59 @@
-
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Button, Image,Platform, } from 'react-native';
 import { StackTypes } from '../../routes/stack';
 import * as ImagePicker from 'expo-image-picker';
-
+import { MaterialIcons } from '@expo/vector-icons'; 
+import UserService from '../../services/UserService';
+import { User } from '../../types/types';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+
+
+
 const EsqueciSenha = () => {
-  const [email, setEmail] = useState('');
-  const [nome, setNome] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [name, setNome] = useState('');
+  const [password, setPassword] = useState<string>('');
   const [senhaconfimar, setPasswordConfirm] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
+  const [image, setImage] = useState('');
+  const [usernameErro, setUsernameError] = useState(false);
+  const [emailcadastro, setEmailcadastro] = useState<string>('');
+  const [passwordcadastro, setPasswordcadastro] = useState<string>('');
+
+
 
   const navigation = useNavigation<StackTypes>();
 
-  const handleLogin = () => {
-    // Aqui você pode adicionar lógica para autenticar o usuário com o email e senha fornecidos
-    console.log('Email:', email);
-    console.log('Senha:', password);
-  };
+
+  const userService = new UserService();
+
+ 
+  const handleLogin = async () => {
+    if (!email) {
+      setUsernameError(true);
+      return;
+    }else{
+      setUsernameError(false);
+    }
+
+      const isValid = await userService.validateUser(email, password);
+      
+      if (isValid)  {
+            
+              setEmail('');
+              setPassword('');
+              navigation.navigate('Inicio');
+      } else{
+        alert('Usuario ou senha inválidos')
+      }
+            
+
+    };
+
+
+
+  
 
   const handleToggleForm = () => {
     setIsRegistering(!isRegistering);
@@ -51,12 +85,11 @@ const EsqueciSenha = () => {
               onChangeText={(text) => setPassword(text)}
             />
           </View>
-          <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-            <Text style={styles.loginText}>Entrar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=> navigation.navigate('Cadastro')} style={styles.toggleFormText} activeOpacity={0.1}>
-      <Text style={styles.toggleFormText}>Não tenho uma conta. Cadastrar</Text>
-    </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogin} style={styles.loginBtn} activeOpacity={0.1}>
+              <Text style={styles.loginText}>Entrar</Text>
+            </TouchableOpacity>
+           
+         
         </View>
         ) : (
           <View style={styles.formContainer}>

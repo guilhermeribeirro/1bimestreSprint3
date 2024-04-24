@@ -4,25 +4,112 @@ import React, { useState } from 'react';
 import { Button, Image,Platform, } from 'react-native';
 import { StackTypes } from '../../routes/stack';
 import * as ImagePicker from 'expo-image-picker';
+import { MaterialIcons } from '@expo/vector-icons'; 
+import UserService from '../../services/UserService';
+import { User } from '../../types/types';
+import AuthService from '../../types/AuthService';
 
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [nome, setNome] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [name, setNome] = useState('');
+  const [password, setPassword] = useState<string>('');
   const [senhaconfimar, setPasswordConfirm] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
+  const [image, setImage] = useState('');
+  const [usernameErro, setUsernameError] = useState(false);
+  const [passwordErro, setPasswordError] = useState(false);
+  const [emailcadastro, setEmailcadastro] = useState<string>('');
+  const [passwordcadastro, setPasswordcadastro] = useState<string>('');
+  const [lastUserId, setLastUserId] = useState(0);
+  const [photo, setPhoto] = useState('');
+
+  
+
+
+ const userService = new UserService();
 
   const navigation = useNavigation<StackTypes>();
+  
 
-  const handleLogin = () => {
-    // Aqui você pode adicionar lógica para autenticar o usuário com o email e senha fornecidos
-    console.log('Email:', email);
-    console.log('Senha:', password);
+  const AddUserNew = async () => {
+    // Incrementa o último ID usado
+    const newUserId = lastUserId + 1;
+  
+    const newUser: User = {
+      id: newUserId, // Adiciona o novo ID ao usuário
+      username: emailcadastro,
+      password: passwordcadastro,
+      name: name,
+      idUsuario: newUserId,
+      photo,
+      // Outros campos do usuário...
+    };
+  
+    userService.addUser(newUser)
+      .then((success) => {
+        if (success) {
+          alert('Erro ao adicionar o usuário, tente novamente mais tarde');
+        } else {
+          // Atualiza o último ID usado
+          setLastUserId(newUserId);
+          alert('Usuário adicionado com sucesso!! Você será redirecionado para a página de login');
+          navigation.navigate('Login');
+        }
+      })
+      .catch((error) => {
+        console.error('Erro ao adicionar usuário:', error);
+      });
   };
+  
+    const handleLogin = async () => {
+      if (!email || !password) {
+        setUsernameError(!email);
+        setPasswordError(!password);
+        return;
+      } else {
+        setUsernameError(false);
+        setPasswordError(false);
+      }
+    
+      const isValid = await userService.validateUser(email, password);
+      
+      if (isValid)  {
+        // Inicie o estado de sessão de usuário
+        const loggedIn = await AuthService.login(email, password);
+        if (loggedIn) {
+          setEmail('');
+          setPassword('');
+          navigation.navigate('Inicio');
+        } else {
+          alert('Erro ao iniciar sessão');
+        }
+      } else {
+        alert('Usuário ou senha inválidos');
+      }
+    };
+    
+
 
   const handleToggleForm = () => {
     setIsRegistering(!isRegistering);
+  };
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+  
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    
   };
 
   return (
@@ -33,48 +120,63 @@ const Login = () => {
       <View style={styles.content}>
         {isRegistering ? (
           <View style={styles.formContainer}>
-            <Text style={styles.formTitle}>Cadastro</Text>
-            <View style={styles.inputView}>
-              <TextInput
-                style={styles.inputText}
-                placeholder="Nome"
-                placeholderTextColor="#003f5c"
-                onChangeText={(text) => setNome(text)}
-              />
-            </View>
-            <View style={styles.inputView}>
-              <TextInput
-                secureTextEntry
-                style={styles.inputText}
-                placeholder="Email"
-                placeholderTextColor="#003f5c"
-                onChangeText={(text) => setEmail(text)}
-              />
-            </View>
-            <View style={styles.inputView}>
-              <TextInput
-                style={styles.inputText}
-                placeholder="Senha..."
-                placeholderTextColor="#003f5c"
-                onChangeText={(text) => setPassword(text)}
-              />
-            </View>
-            <View style={styles.inputView}>
-              <TextInput
-                secureTextEntry
-                style={styles.inputText}
-                placeholder="Confirmar a Senha"
-                placeholderTextColor="#003f5c"
-                onChangeText={(text) => setPasswordConfirm(text)}
-              />
-            </View>
-            <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-              <Text style={styles.loginText}>Cadastrar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleToggleForm}>
-              <Text style={styles.toggleFormText}>Já tenho uma conta. Fazer login</Text>
-            </TouchableOpacity>
+          <Text style={styles.formTitle}>Cadastro</Text>
+
+
+          <TouchableOpacity onPress={pickImage} style={styles.button}>
+      <MaterialIcons name="add-a-photo" size={39} color="white" />
+      {/* Ícone de adicionar foto */}
+    </TouchableOpacity>
+    {image && (
+      <View style={styles.imageContainer}>
+        <Image source={{ uri: image }} style={[styles.image, styles.borderedImage]} />
+      </View>
+    )}
+ 
+
+          <View style={styles.inputView}>
+            <TextInput
+              style={styles.inputText}
+              placeholder="Nome"
+              placeholderTextColor="#003f5c"
+              onChangeText={(text) => setNome(text)}
+            />
           </View>
+          <View style={styles.inputView}>
+            <TextInput
+              style={styles.inputText}
+              placeholder="Email"
+              placeholderTextColor="#003f5c"
+              onChangeText={(text) => setEmailcadastro(text)}
+            />
+          </View>
+          <View style={styles.inputView}>
+            <TextInput
+              secureTextEntry
+              style={styles.inputText}
+              placeholder="Senha"
+              placeholderTextColor="#003f5c"
+              onChangeText={(text) => setPasswordcadastro(text)}
+            />
+          </View>
+
+          <View style={styles.inputView}>
+            <TextInput
+              secureTextEntry
+              style={styles.inputText}
+              placeholder="Confirmar a Senha"
+              placeholderTextColor="#003f5c"
+              onChangeText={(text) => setPasswordConfirm(text)}
+            />
+          </View>
+          <TouchableOpacity style={styles.loginBtn} onPress={AddUserNew}>
+            <Text style={styles.loginText}>Cadastrar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleToggleForm}>
+            <Text style={styles.toggleFormText}>Já tenho uma conta. Fazer login</Text>
+          </TouchableOpacity>
+        </View>
+      
         ) : (
           <View style={styles.formContainer}>
             <Text style={styles.formTitle}>Entrar</Text>
@@ -95,14 +197,21 @@ const Login = () => {
                 onChangeText={(text) => setPassword(text)}
               />
             </View>
-            <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-              <Text style={styles.loginText}>Entrar</Text>
-            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleLogin} style={styles.loginBtn} activeOpacity={0.1}>
+  <Text style={styles.loginText}>Entrar</Text>
+</TouchableOpacity>
             <TouchableOpacity onPress={handleToggleForm}>
               <Text style={styles.toggleFormText}>Não tenho uma conta. Cadastrar</Text>
             </TouchableOpacity>
            <TouchableOpacity onPress={()=> navigation.navigate('EsqueciSenha')} style={styles.toggleFormText} activeOpacity={0.1}>
       <Text style={styles.toggleFormText}>Esqueceu Senha</Text>
+      
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={()=> navigation.navigate('Convite')} style={styles.toggleFormText} activeOpacity={0.1}>
+      <Text style={styles.toggleFormText}>Convite</Text>
+      
     </TouchableOpacity>
 
 
@@ -132,12 +241,29 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
+  
   content: {
     flex: 1,
     padding: 20,
   },
+ 
+    imageContainer: {
+      alignItems: 'center',
+    },
+  
   formContainer: {
     alignItems: 'center',
+  },
+  imageIcon: {
+    width: 30, 
+    height: 30,
+    
+  },
+  button: {
+    backgroundColor: '#5d2417',
+    padding: 5,
+    borderRadius: 15,
+    marginBottom: 30,
   },
   formTitle: {
     fontSize: 26,
@@ -152,6 +278,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     justifyContent: 'center',
     padding: 20,
+  },
+  image: {
+    width: 90,
+    height: 90,
+    resizeMode: 'cover', 
+  },
+  borderedImage: {
+    borderWidth: 2, 
+    borderColor: 'black', 
+    borderRadius: 10, 
   },
   inputText: {
     height: 50,

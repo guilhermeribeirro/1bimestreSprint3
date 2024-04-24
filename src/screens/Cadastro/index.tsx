@@ -3,29 +3,100 @@ import React, { useState } from 'react';
 import { Button, Image, Platform } from 'react-native';
 import { StackTypes } from '../../routes/stack';
 import * as ImagePicker from 'expo-image-picker';
+import { MaterialIcons } from '@expo/vector-icons'; 
+import UserService from '../../services/UserService';
+import { User } from '../../types/types';
 
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 
 const Cadastro = () => {
   const [email, setEmail] = useState('');
-  const [nome, setNome] = useState('');
+  const [name, setNome] = useState('');
   const [password, setPassword] = useState('');
   const [senhaconfirmar, setPasswordConfirm] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [image, setImage] = useState('');
+  const [emailcadastro, setEmailcadastro] = useState('');
+  const [passwordcadastro, setPasswordcadastro] = useState('');
+  const [usernameErro, setUsernameError] = useState(false);
+  const [lastUserId, setLastUserId] = useState(0);
+  const [photo, setPhoto] = useState('');
+
+
+
+
+
   const navigation = useNavigation<StackTypes>();
 
-  const handleLogin = () => {
-    // Aqui você pode adicionar lógica para autenticar o usuário com o email e senha fornecidos
-    console.log('Email:', email);
-    console.log('Senha:', password);
+  const userService = new UserService();
+
+  
+
+  const AddUserNew = async () => {
+    // Incrementa o último ID usado
+    const newUserId = lastUserId + 1;
+  
+    const newUser: User = {
+      id: 9, // Adiciona o novo ID ao usuário
+      username: emailcadastro,
+      password: passwordcadastro,
+      name: name,
+      idUsuario: 9,
+      photo,
+      // Outros campos do usuário...
+    };
+  
+    userService.addUser(newUser)
+      .then((success) => {
+        if (success) {
+          alert('Erro ao adicionar o usuário, tente novamente mais tarde');
+        } else {
+          // Atualiza o último ID usado
+          setLastUserId(newUserId);
+          alert('Usuário adicionado com sucesso!! Você será redirecionado para a página de login');
+          navigation.navigate('Login');
+        }
+      })
+      .catch((error) => {
+        console.error('Erro ao adicionar usuário:', error);
+      });
   };
+
+
 
   const handleToggleForm = () => {
     setIsRegistering(!isRegistering);
   };
 
-  // Função para selecionar uma imagem
+
+
+
+ 
+
+  const handleLogin = async () => {
+    if (!email) {
+      setUsernameError(true);
+      return;
+    }else{
+      setUsernameError(false);
+    }
+
+      const isValid = await userService.validateUser(email, password);
+      
+      if (isValid)  {
+            
+              setEmail('');
+              setPassword('');
+              navigation.navigate('Inicio');
+      } else{
+        alert('Usuario ou senha inválidos')
+      }
+            
+
+    };
+
+
+ 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -38,7 +109,7 @@ const Cadastro = () => {
     console.log(result);
   
       if (!result.canceled) {
-        setImage(result.assets[0].uri);
+        setPhoto(result.assets[0].uri);
       }
     
   };
@@ -69,9 +140,9 @@ const Cadastro = () => {
                 onChangeText={(text) => setPassword(text)}
               />
             </View>
-            <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-              <Text style={styles.loginText}>Entrar</Text>
-            </TouchableOpacity>
+            <TouchableOpacity onPress={handleLogin} style={styles.loginBtn} activeOpacity={0.1}>
+      <Text style={styles.loginText}>Entrar</Text>
+    </TouchableOpacity>
             <TouchableOpacity onPress={handleToggleForm}>
               <Text style={styles.toggleFormText}>Não tenho uma conta. Cadastrar</Text>
             </TouchableOpacity>
@@ -82,10 +153,18 @@ const Cadastro = () => {
         ) : (
           <View style={styles.formContainer}>
             <Text style={styles.formTitle}>Cadastro</Text>
+
             <TouchableOpacity onPress={pickImage} style={styles.button}>
-              <Text style={styles.buttonText}>Adicionar Foto</Text>
-            </TouchableOpacity>
-            {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+        <MaterialIcons name="add-a-photo" size={39} color="white" />
+        {/* Ícone de adicionar foto */}
+      </TouchableOpacity>
+      {photo && (
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: photo }} style={[styles.image, styles.borderedImage]} />
+        </View>
+      )}
+   
+
             <View style={styles.inputView}>
               <TextInput
                 style={styles.inputText}
@@ -99,7 +178,7 @@ const Cadastro = () => {
                 style={styles.inputText}
                 placeholder="Email"
                 placeholderTextColor="#003f5c"
-                onChangeText={(text) => setEmail(text)}
+                onChangeText={(text) => setEmailcadastro(text)}
               />
             </View>
             <View style={styles.inputView}>
@@ -108,7 +187,7 @@ const Cadastro = () => {
                 style={styles.inputText}
                 placeholder="Senha"
                 placeholderTextColor="#003f5c"
-                onChangeText={(text) => setPassword(text)}
+                onChangeText={(text) => setPasswordcadastro(text)}
               />
             </View>
 
@@ -121,7 +200,7 @@ const Cadastro = () => {
                 onChangeText={(text) => setPasswordConfirm(text)}
               />
             </View>
-            <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+            <TouchableOpacity style={styles.loginBtn} onPress={AddUserNew}>
               <Text style={styles.loginText}>Cadastrar</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleToggleForm}>
@@ -206,12 +285,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#5d2417',
     padding: 5,
     borderRadius: 15,
-    marginBottom: 15,
+    marginBottom: 30,
   },
   buttonText: {
     color: 'white',
     fontSize: 10,
     fontWeight: 'bold',
+
+  },
+  imageContainer: {
+    alignItems: 'center',
+  },
+  image: {
+    width: 90,
+    height: 90,
+    resizeMode: 'cover', 
+  },
+  borderedImage: {
+    borderWidth: 2, 
+    borderColor: 'black', 
+    borderRadius: 10, 
   },
 });
 

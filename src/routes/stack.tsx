@@ -5,6 +5,9 @@ import Login from '../screens/Login';
 import Home from '../screens/Home';
 import Cadastro from '../screens/Cadastro';
 import EsqueciSenha from '../screens/EsqueciSenha';
+import PaginaInicio from '../screens/PaginaInicio';
+import Inicio from '../screens/Inicio/Index';
+import Convite from '../screens/Convite/Index';
 
 const Stack = createNativeStackNavigator();
 
@@ -13,6 +16,9 @@ type StackNavigation = {
     Home : undefined;
     Cadastro: undefined;
     EsqueciSenha: undefined;
+    PaginaInicio:  undefined;
+    Inicio: undefined;
+    Convite: undefined;
     
 }
 
@@ -24,9 +30,12 @@ export default function StackComponent(){
         <NavigationContainer>
             <Stack.Navigator>
                 <Stack.Screen  name="Home" component={Home}   options={{headerShown: false }}  />
-                <Stack.Screen  name="Login" component={Login} options={{headerShown: false }} />
-                <Stack.Screen  name="Cadastro" component={Cadastro}  options={{headerShown: false }} />
-                <Stack.Screen  name="EsqueciSenha" component={EsqueciSenha} options={{headerShown: false }} />
+                <Stack.Screen  name="Login" component={Login} options={{headerShown: false }}  />
+                <Stack.Screen  name="Cadastro" component={Cadastro} options={{headerShown: false }}  />
+                <Stack.Screen  name="EsqueciSenha" component={EsqueciSenha} />
+                <Stack.Screen  name="PaginaInicio" component={PaginaInicio} />
+                <Stack.Screen  name="Inicio" component={Inicio} />
+                <Stack.Screen  name="Convite" component={Convite} />
             </Stack.Navigator>
         </NavigationContainer>
 
