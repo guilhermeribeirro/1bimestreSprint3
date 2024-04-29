@@ -1,13 +1,15 @@
-
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { Button, Image,Platform, } from 'react-native';
+import { Button, Image, Platform } from 'react-native';
 import { StackTypes } from '../../routes/stack';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import UserService from '../../services/UserService';
 import { User } from '../../types/types';
 import AuthService from '../../types/AuthService';
+import axios from 'axios';
+import { ScrollView } from 'react-native';
+
 
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 const Login = () => {
@@ -23,7 +25,6 @@ const Login = () => {
   const [passwordcadastro, setPasswordcadastro] = useState<string>('');
   const [lastUserId, setLastUserId] = useState(0);
   const [photo, setPhoto] = useState('');
-
   
 
 
@@ -71,6 +72,7 @@ const Login = () => {
         setUsernameError(false);
         setPasswordError(false);
       }
+      
     
       const isValid = await userService.validateUser(email, password);
       
@@ -89,7 +91,7 @@ const Login = () => {
       }
     };
     
-
+  
 
   const handleToggleForm = () => {
     setIsRegistering(!isRegistering);
@@ -111,81 +113,44 @@ const Login = () => {
       }
     
   };
-
+  
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Bem-vindo ao Amigo Chocolate CHOCOMATCH</Text>
-      </View>
-      <View style={styles.content}>
-        {isRegistering ? (
-          <View style={styles.formContainer}>
-          <Text style={styles.formTitle}>Cadastro</Text>
-
-
-          <TouchableOpacity onPress={pickImage} style={styles.button}>
-      <MaterialIcons name="add-a-photo" size={39} color="white" />
-      {/* Ícone de adicionar foto */}
-    </TouchableOpacity>
-    {image && (
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: image }} style={[styles.image, styles.borderedImage]} />
-      </View>
-    )}
- 
-
-          <View style={styles.inputView}>
-            <TextInput
-              style={styles.inputText}
-              placeholder="Nome"
-              placeholderTextColor="#003f5c"
-              onChangeText={(text) => setNome(text)}
-            />
-          </View>
-          <View style={styles.inputView}>
-            <TextInput
-              style={styles.inputText}
-              placeholder="Email"
-              placeholderTextColor="#003f5c"
-              onChangeText={(text) => setEmailcadastro(text)}
-            />
-          </View>
-          <View style={styles.inputView}>
-            <TextInput
-              secureTextEntry
-              style={styles.inputText}
-              placeholder="Senha"
-              placeholderTextColor="#003f5c"
-              onChangeText={(text) => setPasswordcadastro(text)}
-            />
-          </View>
-
-          <View style={styles.inputView}>
-            <TextInput
-              secureTextEntry
-              style={styles.inputText}
-              placeholder="Confirmar a Senha"
-              placeholderTextColor="#003f5c"
-              onChangeText={(text) => setPasswordConfirm(text)}
-            />
-          </View>
-          <TouchableOpacity style={styles.loginBtn} onPress={AddUserNew}>
-            <Text style={styles.loginText}>Cadastrar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleToggleForm}>
-            <Text style={styles.toggleFormText}>Já tenho uma conta. Fazer login</Text>
-          </TouchableOpacity>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Bem-vindo ao Amigo Chocolate CHOCOMATCH</Text>
         </View>
-      
-        ) : (
-          <View style={styles.formContainer}>
-            <Text style={styles.formTitle}>Entrar</Text>
+        <View style={styles.content}>
+          {isRegistering ? (
+            <View style={styles.formContainer}>
+            <Text style={styles.formTitle}>Cadastro</Text>
+  
+  
+            <TouchableOpacity onPress={pickImage} style={styles.button}>
+        <MaterialIcons name="add-a-photo" size={39} color="white" />
+        {/* Ícone de adicionar foto */}
+      </TouchableOpacity>
+      {image && (
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: image }} style={[styles.image, styles.borderedImage]} />
+        </View>
+      )}
+   
+  
+            <View style={styles.inputView}>
+              <TextInput
+                style={styles.inputText}
+                placeholder="Nome"
+                placeholderTextColor="#003f5c"
+                onChangeText={(text) => setNome(text)}
+              />
+            </View>
             <View style={styles.inputView}>
               <TextInput
                 style={styles.inputText}
                 placeholder="Email"
                 placeholderTextColor="#003f5c"
-                onChangeText={(text) => setEmail(text)}
+                onChangeText={(text) => setEmailcadastro(text)}
               />
             </View>
             <View style={styles.inputView}>
@@ -194,35 +159,77 @@ const Login = () => {
                 style={styles.inputText}
                 placeholder="Senha"
                 placeholderTextColor="#003f5c"
-                onChangeText={(text) => setPassword(text)}
+                onChangeText={(text) => setPasswordcadastro(text)}
               />
             </View>
-
-            <TouchableOpacity onPress={handleLogin} style={styles.loginBtn} activeOpacity={0.1}>
-  <Text style={styles.loginText}>Entrar</Text>
-</TouchableOpacity>
-            <TouchableOpacity onPress={handleToggleForm}>
-              <Text style={styles.toggleFormText}>Não tenho uma conta. Cadastrar</Text>
+  
+            <View style={styles.inputView}>
+              <TextInput
+                secureTextEntry
+                style={styles.inputText}
+                placeholder="Confirmar a Senha"
+                placeholderTextColor="#003f5c"
+                onChangeText={(text) => setPasswordConfirm(text)}
+              />
+            </View>
+            <TouchableOpacity style={styles.loginBtn} onPress={AddUserNew}>
+              <Text style={styles.loginText}>Cadastrar</Text>
             </TouchableOpacity>
-           <TouchableOpacity onPress={()=> navigation.navigate('EsqueciSenha')} style={styles.toggleFormText} activeOpacity={0.1}>
-      <Text style={styles.toggleFormText}>Esqueceu Senha</Text>
-      
-    </TouchableOpacity>
-
-    <TouchableOpacity onPress={()=> navigation.navigate('Convite')} style={styles.toggleFormText} activeOpacity={0.1}>
-      <Text style={styles.toggleFormText}>Convite</Text>
-      
-    </TouchableOpacity>
-
-
+            <TouchableOpacity onPress={handleToggleForm}>
+              <Text style={styles.toggleFormText}>Já tenho uma conta. Fazer login</Text>
+            </TouchableOpacity>
           </View>
-        )}
+        
+          ) : (
+            <View style={styles.formContainer}>
+              <Text style={styles.formTitle}>Entrar</Text>
+              <View style={styles.inputView}>
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="Email"
+                  placeholderTextColor="#003f5c"
+                  onChangeText={(text) => setEmail(text)}
+                />
+              </View>
+              <View style={styles.inputView}>
+                <TextInput
+                  secureTextEntry
+                  style={styles.inputText}
+                  placeholder="Senha"
+                  placeholderTextColor="#003f5c"
+                  onChangeText={(text) => setPassword(text)}
+                />
+              </View>
+  
+              <TouchableOpacity onPress={handleLogin} style={styles.loginBtn} activeOpacity={0.1}>
+    <Text style={styles.loginText}>Entrar</Text>
+  </TouchableOpacity>
+              <TouchableOpacity onPress={()=> navigation.navigate('Cadastro')}>
+                <Text style={styles.toggleFormText}>Não tenho uma conta. Cadastrar</Text>
+              </TouchableOpacity>
+             <TouchableOpacity onPress={()=> navigation.navigate('EsqueciSenha')} style={styles.toggleFormText} activeOpacity={0.1}>
+        <Text style={styles.toggleFormText}>Esqueceu Senha</Text>
+        
+      </TouchableOpacity>
+  
+      <TouchableOpacity onPress={()=> navigation.navigate('Convite')} style={styles.toggleFormText} activeOpacity={0.1}>
+        <Text style={styles.toggleFormText}>Convite</Text>
+        
+      </TouchableOpacity>
+  
+  
+            </View>
+          )}
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: '#c57d56',
@@ -291,7 +298,7 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 50,
-    color: '#black',
+    color: 'black',
   },
   loginBtn: {
     width: '80%',
@@ -310,7 +317,7 @@ const styles = StyleSheet.create({
     
   },
   toggleFormText: {
-    color: '#black',
+    color: 'black',
     marginTop: 20,
   },
 });

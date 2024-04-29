@@ -11,6 +11,9 @@ export interface User {
     idUsuario: number;
   }
 
+
+
+  
   export interface Grupo {
     id: number; 
     nome: string;

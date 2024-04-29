@@ -29,9 +29,9 @@ export default function StackComponent(){
     return (
         <NavigationContainer>
             <Stack.Navigator>
-                <Stack.Screen  name="Home" component={Home}   options={{headerShown: false }}  />
-                <Stack.Screen  name="Login" component={Login} options={{headerShown: false }}  />
-                <Stack.Screen  name="Cadastro" component={Cadastro} options={{headerShown: false }}  />
+                <Stack.Screen  name="Home" component={Home} options={{headerShown: false }}  />
+                <Stack.Screen  name="Login" component={Login}  />
+                <Stack.Screen  name="Cadastro" component={Cadastro}  />
                 <Stack.Screen  name="EsqueciSenha" component={EsqueciSenha} />
                 <Stack.Screen  name="PaginaInicio" component={PaginaInicio} />
                 <Stack.Screen  name="Inicio" component={Inicio} />

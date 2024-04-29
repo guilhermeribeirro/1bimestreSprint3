@@ -92,8 +92,8 @@ const styles = StyleSheet.create({
   },
   image: {
     width: 500, 
-    height: 300, 
-    marginBottom: 20, 
+    height: 400, 
+    marginBottom: 60, 
   },
 });
 

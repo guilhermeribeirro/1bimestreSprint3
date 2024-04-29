@@ -24,6 +24,18 @@ const Convite = () => {
         <View style={styles.formContainer}>
           <Text style={styles.formTitle2}>Que bom!, você foi convidado para participar de uma brincadeira chamada AMIGO CHOCOLATE, DESEJA ACEITAR OU RECUSAR ?</Text>
         </View>
+
+        <TouchableOpacity style={styles.groupItem} onPress={() => console.log()}>
+                
+                <Text style={styles.Tituloitem}>Nome do grupo: Os melhores</Text>
+                <Text style={styles.subtitleItem}>Qtde de participantes: 10</Text>
+                <Text style={styles.subtitleItem}>Valor em R$: 10</Text>
+                <Text style={styles.subtitleItem}>Data Revelação: 06/06/2024</Text>
+                <Text style={styles.subtitleItem}>Descrição: Este é um grupo destinado para sorteio de chocolates </Text>
+              </TouchableOpacity>
+
+
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.button, { backgroundColor: 'green', marginBottom: 10 }]}
@@ -54,6 +66,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#c57d56',
+  },
+  groupItem: {
+    backgroundColor: '#ffb48a',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+  },
+  Tituloitem: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'black',
+    fontWeight: 'bold',
+  },
+  subtitleItem: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerText: {
     fontSize: 20,
